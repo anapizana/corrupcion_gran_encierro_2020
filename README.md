@@ -1,2 +1,2 @@
-# corrupcion_gran_encierro_2020
+# La Corrupción en el Gran Encierro
 Análisis de la encuesta telefónica MCCI-Data OPM, julio de 2020.
