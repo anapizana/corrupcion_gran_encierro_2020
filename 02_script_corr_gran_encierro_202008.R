@@ -304,11 +304,15 @@ v_num[8:22] <-
 
 fiuffi <- "Fuente: Omnibús telefónico Data OPM | julio 2020"
 
+prop_simples <- readxl::read_excel(
+  paste0(out, "00_simples/00_props_simples.xlsx")
+)
 
 # ** Gráfica 1 ----
 i = 1
 a <- prop_simples %>% 
   filter(v_id == v_names_loop_gg[i])
+
 fiuf <- vector_fiuf[i]
 
 c <- round(a$prop)
@@ -342,6 +346,55 @@ ggsave(filename = paste0(
   out, "00_simples/", v_num[i], ".png"
 ), width = 17, height = 12, dpi = 100, bg = "transparent")
 
+# ** Gráfica 1.1 (comparado con reforma) ----
+i = 1
+a <- prop_simples %>% 
+  filter(v_id == v_names_loop_gg[i], var_v == "Sí") %>% 
+  select(var_v, prop) %>% 
+  mutate(id = "Durante la pandemia") %>% 
+  bind_rows(
+    tribble(
+      ~var_v, ~prop, ~id,
+      "Sí", 28.84, "Durante los últimos 12 meses"
+    )
+  )
+fiuf <- "¿Sabe de algún familiar o amigo al que le hayan solicitado un pago indebido, propina o mordida por realizar algún servicio público que haya necesitado...?"
+
+ggplot(a, aes(x = fct_rev(as.factor(id)),
+              y = prop,
+              label = paste0(prop, "%"),
+              fill = fct_rev(as.factor(id)))) +
+  geom_col(width = 0.5, position = position_dodge2()) + 
+  geom_text(vjust = -0.1, size = 8, position = position_dodge(width = 0.5)) +
+  scale_y_continuous(
+    limits = c(0,40),
+    breaks = seq(0,40,10),
+    labels = paste0(
+      as.character(seq(0,40,10)), "%"
+    )
+  ) + 
+  scale_fill_manual("", values = c(mcci_discrete[1], 
+                                   mcci_discrete[5])) +
+  labs(title= str_wrap(fiuf, width = 75),
+       subtitle = "Solo se muestran las respuestas afirmativas",
+       caption = "Fuente: Encuestas MCCI-Reforma y MCCI-Data OPM\nNota: la última medición no es comparable debido al diseño muestral.") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 35, face = "bold" , hjust = 0.5),
+        plot.subtitle = element_text(size = 25, hjust = 0.5),
+        plot.caption = element_text(size = 20),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        text = element_text(family = "Arial Narrow"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_text(size = 18),
+        axis.text.x = element_text(size = 25),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 25),
+        legend.spacing.y = unit(1.0, 'cm'),
+        legend.position = "none")
+ggsave(filename = paste0(
+  out, "00_simples/", v_num[i], "_comparada.png"
+), width = 17, height = 12, dpi = 100, bg = "transparent")
 
 # ** Gráfica 2 ----
 i = 2
@@ -838,7 +891,58 @@ ggsave(filename = paste0(
   out, "00_simples/", v_num[i], ".png"
 ), width = 17, height = 12, dpi = 100, bg = "transparent")
 
-# ** Gráfica 6.1 (desagregación por servicios) ----
+# ** Gráfica 6.1 (comparada con Reforma) ----
+i = 7
+a <- prop_simples %>% 
+  filter(v_id == v_names_loop_gg[i], var_v == "Sí") %>% 
+  select(var_v, prop) %>% 
+  mutate(id = "Durante la pandemia") %>% 
+  bind_rows(
+    tribble(
+      ~var_v, ~prop, ~id,
+      "Sí", 28.84, "Durante los últimos 12 meses"
+    )
+  )
+
+fiuf <- "¿Le han solicitado un pago indebido, propina o mordida por realizar algún servicio público GRATUITO que haya necesitado?"
+
+ggplot(a, aes(x = fct_rev(as.factor(id)),
+              y = prop,
+              label = paste0(prop, "%"),
+              fill = fct_rev(as.factor(id)))) +
+  geom_col(width = 0.5, position = position_dodge2()) + 
+  geom_text(vjust = -0.1, size = 8, position = position_dodge(width = 0.5)) +
+  scale_y_continuous(
+    limits = c(0,40),
+    breaks = seq(0,40,10),
+    labels = paste0(
+      as.character(seq(0,40,10)), "%"
+    )
+  ) + 
+  scale_fill_manual("", values = c(mcci_discrete[1], 
+                                   mcci_discrete[5])) +
+  labs(title= str_wrap(fiuf, width = 75),
+       subtitle = "Solo se muestran las respuestas afirmativas",
+       caption = "Fuente: Encuestas MCCI-Reforma y MCCI-Data OPM\nNota: la última medición no es comparable debido al diseño muestral.") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 35, face = "bold" , hjust = 0.5),
+        plot.subtitle = element_text(size = 25, hjust = 0.5),
+        plot.caption = element_text(size = 20),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        text = element_text(family = "Arial Narrow"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_text(size = 18),
+        axis.text.x = element_text(size = 25),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 25),
+        legend.spacing.y = unit(1.0, 'cm'),
+        legend.position = "none")
+ggsave(filename = paste0(
+  out, "00_simples/", v_num[i], "_comparada.png"
+), width = 17, height = 12, dpi = 100, bg = "transparent")
+
+# ** Gráfica 6.2 (desagregación por servicios) ----
 a_mcci <- data %>% 
   filter(v_mcci6_durante_la_pandemia_le_han_solicitado_un_pago_indebido_propina_o_mordida_por_realizar_algún_servicio_público_gratuito_que_haya_necesitado_servicios_médicos_programas_sociales_programas_de_apoyo_a_la_emergencia_etc == "Sí") %>% 
   select(starts_with("v_a_mcci"), weight)%>% 
@@ -1193,7 +1297,7 @@ a <-
       select(var_v, prop, orden, id, fecha)
   )
 
-fiuf <- vector_fiuf[i]
+fiuf <- "¿Usted aprueba o desaprueba el trabajo de Andrés Manuel López Obrador como presidente de México?"
 
 ggplot(a %>% filter(!str_detect(var_v, "Ni")), 
        aes(y = reorder(var_v, -as.numeric(orden)),
@@ -1372,4 +1476,281 @@ ggplot(a, aes(y = reorder(str_wrap(var_v, 25), -orden),
         legend.position = "none")
 ggsave(filename = paste0(
   out, "00_simples/", v_num[i], ".png"
+), width = 17, height = 12, dpi = 100, bg = "transparent")
+
+
+# Proporciones por sexo ----
+# * Tabla de frecuencias ----
+v_names_loop <- names(data)[6:35]
+
+test <- data.frame()
+for (i in 1:length(v_names_loop)){
+  
+  tempo <- data %>% 
+    select(v_names_loop[i], cruce_sexo, weight) %>% 
+    as_survey_design(
+      weight = weight
+    ) %>% 
+    srvyr::group_by_at(vars(c(starts_with("cruce_"),
+                              starts_with("v_"))),
+                       .drop = T) %>% 
+    srvyr::summarise(count = survey_total(na.rm = T), 
+                     prop = survey_mean(na.rm = T)) %>% 
+    rename(sexo = starts_with("cruce_"),
+           var_v = starts_with("v_")
+    ) %>% 
+    mutate(
+      v_id = str_replace_all(v_names_loop[i], "v_", "")
+    ) %>% 
+    drop_na(sexo) %>% drop_na(var_v)
+  
+  test <- bind_rows(test, tempo)
+  rm(tempo)
+  
+}
+
+prop_sexo <- test %>% 
+  mutate_at(
+    vars(starts_with("prop")),
+    funs(round(.*100,2))
+  ) %>% 
+  mutate_at(
+    vars(starts_with("var_v")),
+    funs(
+      ifelse(
+        var_v=="Si", "Sí", as.character(var_v)
+      )
+    )
+  )
+beepr::beep(1)
+
+openxlsx::write.xlsx(
+  prop_sexo, paste0(out, "01_sexo_rápidas/00_props_sexo.xlsx")
+)
+
+# * Gráficas (rápidas) ----
+v_names_loop_gg <- str_remove_all(v_names_loop, "v_")
+v_num <- sub("\\_.*", "", v_names_loop_gg)
+v_num[8:22] <- 
+  c(
+    "a_mcci7_1",
+    "a_mcci7_2",
+    "a_mcci7_3",
+    "a_mcci7_4",
+    "a_mcci7_5",
+    "a_mcci7_6",
+    "a_mcci7_7",
+    "a_mcci7_8",
+    "a_mcci7_9",
+    "a_mcci7_10",
+    "a_mcci7_11",
+    "a_mcci7_12",
+    "a_mcci7_13",
+    "a_mcci7_13_otro",
+    "a_mcci7_14"
+  )
+
+vector_fiuf <- vector_fiuf[1:30]
+vector_fiuf[1] <- "¿Sabe de algún familiar o amigo al que le hayan solicitado un pago indebido, propina o mordida por realizar algún servicio público que haya necesitado (servicios médicos, programas sociales, programas de apoyo a la emergencia, etc.) durante la pandemia?"
+
+fiuff <- "Proporciones por sexo"
+fiuffi <- "Fuente: Omnibús telefónico Data OPM | julio 2020"
+
+
+a <- prop_sexo %>% 
+  mutate(
+    prop = ifelse(
+      str_detect(sexo, "ombr"), prop*(-1), prop
+    )
+  )
+
+
+for(i in 1:length(v_names_loop)){
+  fiuf <- vector_fiuf[i]
+  ggplot(a %>% filter(v_id == v_names_loop_gg[i]), 
+         aes(x = reorder(str_wrap(var_v,18), abs(prop), function(x){ sum(x) }), 
+             y = prop, 
+             label = paste0(abs(prop), "%"),
+             fill = sexo)) + 
+    geom_bar(stat = "identity", width = .6) +
+    geom_text(hjust = "outward", size = 6,
+              position = position_dodge(width = 0)) +
+    scale_y_continuous(
+      limits = c(-100,100),
+      breaks = seq(-100,100,25),
+      labels = paste0(
+        c(as.character(seq(100,0,-25)),
+          as.character(seq(25,100,25))), "%"
+      )
+    ) + 
+    scale_fill_manual("", values = c("#000c2d", "#f72732")) +
+    labs(title= str_wrap(fiuf, width = 75),
+         subtitle = fiuff,
+         caption = fiuffi) +
+    theme_minimal() +
+    theme(plot.title = element_text(size = 30, face = "bold", hjust = 0.5),
+          plot.subtitle = element_text(size = 25, hjust = 0.5),
+          plot.caption = element_text(size = 20),
+          plot.background = element_rect(fill = "transparent",colour = NA),
+          text = element_text(family = "Arial Narrow"),
+          axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.x = element_text(size = 12),
+          axis.text.y = element_text(size = 15),
+          legend.title = element_blank(),
+          legend.text = element_text(size = 20),
+          legend.position = "bottom") +
+    coord_flip() 
+  
+  
+  ggsave(filename = paste0(
+    out, "01_sexo_rápidas/", v_num[i], ".png"
+  ), width = 15, height = 10, dpi = 100, bg = "transparent")
+}
+  
+
+rm(i, a)
+
+beepr::beep(1)
+
+# Gráfica mcci7 ----
+a_mcci <- data %>% 
+  filter(v_mcci6_durante_la_pandemia_le_han_solicitado_un_pago_indebido_propina_o_mordida_por_realizar_algún_servicio_público_gratuito_que_haya_necesitado_servicios_médicos_programas_sociales_programas_de_apoyo_a_la_emergencia_etc == "Sí") %>% 
+  select(starts_with("v_a_mcci"),cruce_sexo, weight)%>% 
+  mutate_at(
+    vars(starts_with("v_")),
+    funs(
+      ifelse(str_detect(., "([0-9]+)"),0,1)
+    )
+  ) %>% 
+  mutate_at(
+    vars(starts_with("cruce")),
+    funs(
+      ifelse(str_detect(., "Hombre"),0,1)
+    )
+  ) %>% 
+  rename_at(
+    vars(starts_with("v_a_mcci")),
+    funs(
+      str_remove_all(.,"([0-9]+)")
+    )
+  )%>% 
+  rename_at(
+    vars(starts_with("v")),
+    funs(
+      str_remove_all(.,"a_mcci__para_qué_tipo_de_servicio_")
+    )
+  ) %>% 
+  select(-v_a_mcci_otro_para_qué_tipo_de_servicio_otro_other_specify)
+
+# Necesario para evitar error
+i <- nrow(a_mcci)+1
+ii <- nrow(a_mcci)+2
+a_mcci[i,] <- 99
+a_mcci[i,16] <- 1
+a_mcci[ii,] <- 98
+a_mcci[ii,16] <- 1
+rm(i, ii)
+
+test <- data.frame()
+for(i in 1:14){
+  tempo <- a_mcci %>% 
+    mutate_at(
+      vars(starts_with("v")),
+      funs(as.factor(.))
+    ) %>% 
+    mutate_at(
+      vars(starts_with("cruce")),
+      funs(as.factor(.))
+    ) %>% 
+    select(names(a_mcci)[i],cruce_sexo, weight) %>% 
+    as_survey_design(
+      weight = weight
+    ) %>% 
+    srvyr::group_by_at(vars(c(starts_with("cruce_"),
+                              starts_with("v_"))),
+                       .drop = T) %>% 
+    srvyr::summarise(count = survey_total(na.rm = T), 
+                     prop = survey_mean(na.rm = T)) %>% 
+    rename(var_v = starts_with("v_"),
+           sexo = cruce_sexo) %>% 
+    mutate(
+      v_id = str_replace_all(names(a_mcci)[i], "v_", "")
+    ) %>% 
+    filter(var_v=="1") %>% 
+    drop_na(sexo)
+  
+  test <- bind_rows(test, tempo)
+  rm(tempo)
+  
+}
+
+a <- test %>% 
+  mutate(
+    sexo = ifelse(sexo==1,"Mujer","Hombre"),
+    prop = round(prop*100,2),
+    prop = ifelse(
+      str_detect(sexo, "ombr"), prop*(-1), prop
+    ),
+    var_v = str_replace_all(v_id, "_", " "),
+    var_v = str_to_sentence(var_v),
+    var_v = case_when(
+      var_v == "Médico o de atención a la salud incluyendo pruebas de detección o inmunidad por coronavirus" ~ "Atención a la salud (incluyendo pruebas de detección por coronavirus)",
+      var_v == "Trámites de construcción permisos de demolición y similares" ~ "Trámites de construcción, permisos de demolición y similares",
+      var_v == "Seguridad pública" ~ "Seguridad pública",
+      var_v == "Luz y suministro de energía eléctrica" ~ "Luz y suministro de energía eléctrica",
+      var_v == "Servicios legales" ~ "Servicios legales",
+      var_v == "Otro" ~ "Otro",
+      var_v == "Nsnc" ~ "Ns/Nc"
+    ),
+    orden = case_when(
+      var_v == "Atención a la salud (incluyendo pruebas de detección por coronavirus)" ~ 1,
+      var_v == "Trámites de construcción, permisos de demolición y similares" ~ 4,
+      var_v == "Seguridad pública" ~ 2,
+      var_v == "Luz y suministro de energía eléctrica" ~ 5,
+      var_v == "Servicios legales" ~ 3,
+      var_v == "Otro" ~ 6,
+      var_v == "Ns/Nc" ~ 7,
+    )
+  )
+
+
+fiuf <- "¿Para qué tipo de servicio?"
+fiuff <- "Proporciones por sexo"
+ggplot(a, 
+       aes(x = reorder(str_wrap(var_v,20), -as.numeric(orden)), 
+           y = prop, 
+           label = paste0(abs(prop), "%"),
+           fill = sexo)) + 
+  geom_bar(stat = "identity", width = .6) +
+  geom_text(hjust = "outward", size = 6,
+            position = position_dodge(width = 0)) +
+  scale_y_continuous(
+    limits = c(-100,100),
+    breaks = seq(-100,100,25),
+    labels = paste0(
+      c(as.character(seq(100,0,-25)),
+        as.character(seq(25,100,25))), "%"
+    )
+  ) + 
+  scale_fill_manual("", values = c("#000c2d", "#f72732")) +
+  labs(title= str_wrap(fiuf, width = 75),
+       subtitle = fiuff,
+       caption = fiuffi) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 30, face = "bold", hjust = 0.5),
+        plot.subtitle = element_text(size = 25, hjust = 0.5),
+        plot.caption = element_text(size = 20),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        text = element_text(family = "Arial Narrow"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 15),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 20),
+        legend.position = "bottom") +
+  coord_flip() 
+ggsave(filename = paste0(
+  out, "01_sexo_rápidas/", "mcci7.png"
 ), width = 17, height = 12, dpi = 100, bg = "transparent")
